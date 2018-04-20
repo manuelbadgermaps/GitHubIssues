@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from reporter_class import Reporter
+from reporter_service import Reporter
 
 import sys
 
