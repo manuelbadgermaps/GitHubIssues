@@ -19,22 +19,7 @@ class UserGithub(object):
         self.github_connection=Github(user,password, per_page=10000)
 
     def get_repo_issues(self, repository):
-
-        issues_days_ago ={}
-        number_of_issues_days_ago ={}
-        for i in range(1, 7):
-            issues_day=self.github_connection.get_repo(repository.replace(" ", "")).get_issues(since=(datetime.datetime.now() - datetime.timedelta(days=i+1)))
-            issues_days_ago[i] = [issue for issue in issues_day]
-            number_of_issues_days_ago[i] = len(issues_days_ago[i])
-            if i > 1:
-                issues_days_ago[i]= set(issues_days_ago[i]) - set(issues_days_ago[i-1])
-                number_of_issues_days_ago[i] = len(issues_days_ago[i])
-
-
-        issues = self.github_connection.get_repo(repository.replace(" ", "")).get_issues(
-            since=(datetime.datetime.now() - datetime.timedelta(days=7)))
-        total_issues= [issue for issue in issues]
-        return total_issues, issues_days_ago, number_of_issues_days_ago
+        return self.github_connection.get_repo(repository).get_issues(since=(datetime.datetime.today() - datetime.timedelta(days=7)))
 
 class Issue(object):
     id = None
@@ -43,8 +28,12 @@ class Issue(object):
     repository = None
     created_at = None
 
-    def __init__(self):
-        self.id
+    def __init__(self, id, state, title, repository, created_at):
+        self.id = id
+        self.state = state
+        self.title = title
+        self.repository = repository
+        self.created_at = created_at
 
 
 class Reporter(object):
@@ -60,20 +49,18 @@ class Reporter(object):
         user = UserGithub("mirespace@gmail.com", "5de7de97")
         print "Logged"
         if len(self.list_of_repositories) > 0:
+            list_of_issues = {}
             print "Repositories: {number}".format(number=len(self.list_of_repositories))
             for repo_name in self.list_of_repositories:
-                issues, issues_day, number_of_issues_per_day = user.get_repo_issues(repo_name)
-                report={}
-                report['repo']=repo_name
-                report['issues']=issues
-                report['issues_per_day'] = issues_day
-                report['number_of_issues_per_day'] = number_of_issues_per_day
-                report['size']=len(issues)
-                self.reports.append(report)
-                print repo_name
-                print len(issues)
-                print report['issues_per_day']
-                print "<---------------------------->"
+                issues = user.get_repo_issues(repo_name)
+                for issue_to_handle in issues:
+                    issue = self.convert_to_report_issue(issue_to_handle, repo_name)
+                    self.add_issue_to_list(list_of_issues, issue)
+                    
+                    
+            sorted_list = sorted(list_of_issues.items(), key=operator.itemgetter(0))
+            top_day, issues_per_repo = self.extract_top_day_details(sorted_list)
+            
         else:
             pass
 
@@ -83,3 +70,24 @@ class Reporter(object):
             pass
 
     pass
+    
+    @staticmethod
+    def convert_to_report_issue(issue, repo):
+        return Issue(issue["id"], issue["state"], issue["title"], repo,  issue["created_at"]))
+    
+    @staticmethod
+    def add_issue_to_list(list_of_issues, issue):
+        timestamp =convert_to_timestamp(issue.created_at)
+        if timestamp in list_of_issues:
+            list_of_issues[timestamp].append(issue)
+        else:
+            list_of_issues[timestamp] =(issue,)
+    
+    @staticmethod
+    def convert_to_timestamp(datetime)
+        return datetime.strptime('Jun 1 2005  1:33PM', '%b %d %Y %I:%M%p') #TODO
+                    
+    @staticmethod
+    def extract_top_day_details(sorted_list):
+        pass #TODO            
+                    
