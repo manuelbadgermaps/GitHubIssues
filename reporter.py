@@ -10,4 +10,3 @@ if len(arguments) > 1:
     print reporter.run()
 else:
     print("Usage python reporter.py list_of_repositories")
-
