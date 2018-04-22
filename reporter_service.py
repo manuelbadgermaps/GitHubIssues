@@ -2,13 +2,9 @@
 import datetime
 import operator
 
-from github import Github  # pip install pygithub
+from github import Github  
 
 DAYS_AGO = 7
-
-
-# https://github.com/PyGithub/PyGithub
-# http://pygithub.readthedocs.io/en/latest/introduction.html
 
 class UserGithub(object):
     github_connection = None
@@ -52,8 +48,8 @@ class Reporter(object):
         if isinstance(list_of_repositories, (list,)):
             self.list_of_repositories = list_of_repositories
 
-    def run(self):
-        user = UserGithub("mirespace@gmail.com", "5de7de97") #Yes, harcoded... 
+    def run(self,username,password):
+        user = UserGithub(username, password) 
         if len(self.list_of_repositories) > 0:
             self.list_of_issues = {}
             for repo_name in self.list_of_repositories:
@@ -76,7 +72,7 @@ class Reporter(object):
         print "No valid issues found"
 
     @staticmethod
-    def reduce_list(list):  # How is it possible I filter for last seven days buy Github API returns from before also?
+    def reduce_list(list):  #It seems there is a bug in pygithub when filtering by date
         copy = []
         for (key, value) in list:
             if key > (datetime.datetime.today() - datetime.timedelta(days=7)):
@@ -96,7 +92,7 @@ class Reporter(object):
 
     @staticmethod
     def convert_to_timestamp(datetime):
-        return datetime.strptime(str(datetime), '%Y-%m-%d %H:%M:%S')  # TODO
+        return datetime.strptime(str(datetime), '%Y-%m-%d %H:%M:%S')
 
     @staticmethod
     def extract_top_day_details(sorted_list):
