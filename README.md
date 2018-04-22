@@ -17,6 +17,7 @@ list_of_repositories format : owner/repo,owner/repo...
 Technical debs:
 
 - refactor extract_top_day_details method
+- research about weird behaviour of pygithub get_issues since filter
 
 
 # Execution example:
