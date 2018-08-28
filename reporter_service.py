@@ -130,8 +130,9 @@ class Reporter(object):
     def create_json_report(top_day, issues_per_repo, issues):
         json_issues, json_occurences = Reporter.get_json_issues_and_ocurrences(issues)
 
-        return '{issues:[' + json_issues + '],"top_day":{"day":"' + str(
-            datetime.datetime.today() - datetime.timedelta(days=top_day)) + '","ocurrences":{' + json_occurences + '}}}'
+        special_day = datetime.datetime.today() - datetime.timedelta(days=top_day)
+        return '{issues:[' + json_issues + '],"top_day":{"day":"' + datetime.datetime.strftime(special_day,
+                                                        '%Y-%m-%d') + '","ocurrences":{' + json_occurences + '}}}'
 
     @staticmethod
     def get_json_issues_and_ocurrences(issues):
